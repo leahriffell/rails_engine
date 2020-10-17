@@ -1,7 +1,33 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
-#
-# Examples:
-#
-#   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
-#   Character.create(name: 'Luke', movie: movies.first)
+require 'csv'
+
+InvoiceItem.destroy_all
+Item.destroy_all
+Invoice.destroy_all
+Transaction.destroy_all
+Customer.destroy_all
+Merchant.destroy_all
+
+CSV.foreach('lib/data/customers.csv', headers: true, header_converters: :symbol) do |row|
+  Customer.create(row.to_h)
+end
+
+CSV.foreach('lib/data/merchants.csv', headers: true, header_converters: :symbol) do |row|
+  Merchant.create(row.to_h)
+end
+
+CSV.foreach('lib/data/invoices.csv', headers: true, header_converters: :symbol) do |row|
+  Invoice.create(row.to_h)
+end
+
+CSV.foreach('lib/data/items.csv', headers: true, header_converters: :symbol) do |row|
+  Item.create(row.to_h)
+end
+
+CSV.foreach('lib/data/invoice_items.csv', headers: true, header_converters: :symbol) do |row|
+  InvoiceItem.create(row.to_h.except(:unit_price))
+end
+
+CSV.foreach('lib/data/transactions.csv', headers: true, header_converters: :symbol) do |row|
+  Transaction.create(row.to_h)
+end
+
