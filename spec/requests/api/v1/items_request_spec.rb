@@ -3,8 +3,8 @@ require 'rails_helper'
 describe 'Items API' do
   describe 'items index' do
     it 'sends a list of items' do
-      FactoryBot.merchant_with_items(item_count: 5)
-      FactoryBot.merchant_with_items(item_count: 5)
+      merchant_with_items(item_count: 5)
+      merchant_with_items(item_count: 5)
 
       get '/api/v1/items'
 
@@ -30,22 +30,23 @@ describe 'Items API' do
         expect(item).to have_key(:merchant_id)
         expect(item[:merchant_id]).to be_an(Integer)
       end
+    end
 
-      it 'sends an empty array if no items' do
-        get '/api/v1/items'
-    
-        expect(response).to be_successful
-    
-        items = JSON.parse(response.body)
+    it 'sends an empty array if no items' do
+      get '/api/v1/items'
+  
+      expect(response).to be_successful
+  
+      items = JSON.parse(response.body)
 
-        expect(items).to eq([])
-      end
+      expect(items).to eq([])
     end
   end
 
   describe 'item show' do
     before :each do 
-      @id = FactoryBot.create(:item).id
+      merchant = create(:merchant)
+      @id = create(:item, merchant_id: merchant.id).id
     end
 
     it 'sends specific item' do
@@ -53,9 +54,7 @@ describe 'Items API' do
 
       expect(response).to be_successful
 
-      items = JSON.parse(response.body, symbolize_names: true)
-
-      expect(items.count).to eq(1)
+      item = JSON.parse(response.body, symbolize_names: true)
 
       expect(item).to have_key(:id)
       expect(item[:id]).to eq(@id)
@@ -73,20 +72,16 @@ describe 'Items API' do
       expect(item[:merchant_id]).to be_an(Integer)
     end
 
-    it 'sends _____ when no item is found' do
-      get "/api/v1/items/#{@id}"
+    xit 'sends 404 response when no item is found' do
+      get "/api/v1/items/1"
 
-      expect(response).to be_successful
-
-      item = JSON.parse(response.body, symbolize_names: true)
-
-      expect(item).to eq("what should this equal?")
+      expect(response).to have_http_status(:not_found)
     end
   end
 
   describe 'item create new' do
     before :each do
-      @merchant = FactoryBot.create(:merchant)
+      @merchant = create(:merchant)
     end
 
     it 'can create a new item when all required fields are provided' do
@@ -94,7 +89,7 @@ describe 'Items API' do
         name: 'Raw Chocolate Vegan Protein Powder',
         description: 'Made from organic Canadian peas and organic sprouted brown rice with 100% mechanical processing of proteins. All 9 essential amino acids and ONLY 4 ingredients.',
         unit_price: 59.99,
-        merchant_id: @merchant_id.id
+        merchant_id: @merchant.id
       })
       headers = {"CONTENT_TYPE" => "application/json"}
 
@@ -106,24 +101,39 @@ describe 'Items API' do
       expect(created_item.description).to eq(item_params[:description])
       expect(created_item.unit_price).to eq(item_params[:unit_price])
       expect(created_item.merchant_id).to eq(item_params[:merchant_id])
-      expect(created_item.merchant).to eq(@merchant)
+      expect(created_item.merchant_id).to eq(@merchant.id)
     end
 
-    it "cannot create a new item when all required fields aren't provided" do
+    xit "cannot create a new item when all required fields aren't provided" do
     end
 
-    it "cannot create a new item when merchant provided does not exist" do
+    xit "cannot create a new item when merchant provided does not exist" do
     end
   end
 
   describe 'item update to existing' do
+    before :each do
+      merchant = create(:merchant)
+      @item = create(:item, merchant_id: merchant.id)
+    end
+
     it 'can update existing item' do
+      previous_name = Item.last.name
+      item_params = { name: "Handy Dandy Notebook" }
+      headers = {"CONTENT_TYPE" => "application/json"}
+    
+      patch "/api/v1/items/#{@item.id}", headers: headers, params: JSON.generate({item: item_params})
+      item = Item.find_by(id: @item.id)
+    
+      expect(response).to be_successful
+      expect(item.name).to_not eq(previous_name)
+      expect(item.name).to eq("Handy Dandy Notebook")
     end
 
-    it 'cannot update existing item with incorrect datatype provided' do
+    xit 'cannot update existing item with incorrect datatype provided' do
     end
 
-    it 'can do ___ when item to update is not found' do
+    xit 'can do ___ when item to update is not found' do
     end
   end
 
@@ -131,7 +141,7 @@ describe 'Items API' do
     it 'can destroy an item' do
     end
 
-    it 'can do _____ when item to destroy is not found' do
+    xit 'can do _____ when item to destroy is not found' do
     end
   end
 end
