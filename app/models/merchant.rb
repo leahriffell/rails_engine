@@ -2,7 +2,7 @@ class Merchant < ApplicationRecord
   has_many :invoices
   has_many :items
   has_many :invoice_items
-  has_many :transactions
+  has_many :invoices, through: :invoices
 
   validates :name, presence: true
 
@@ -29,7 +29,7 @@ class Merchant < ApplicationRecord
     INNER JOIN transactions ON invoices.id = transactions.invoice_id
     INNER JOIN items ON invoice_items.item_id = items.id
     WHERE transactions.result = 0 AND invoices.merchant_id = #{self.id};"
-
     result = ActiveRecord::Base.connection.exec_query(sql).rows.first.first
+    # require 'pry'; binding.pry
   end
 end

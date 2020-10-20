@@ -10,17 +10,18 @@ describe 'Merchants Business Intelligence API' do
     transaction = create(:transaction, invoice_id: invoice.id, result: 0)
   end
 
-  # describe 'Merchant rank by revenue' do
-  #   it 'sends a list of num merchants sorted in descending order by revenue' do
-  #     get '/api/v1/merchants/most_revenue?quantity=5'
+  describe 'Merchant rank by revenue' do
+    xit 'sends a list of num merchants sorted in descending order by revenue' do
+      get '/api/v1/merchants/most_revenue?quantity=5'
 
 
-  #   end
-  # end
+    end
+  end
 
   describe 'Revenue for a Merchant' do
     it 'sends total collected revenue for a specific merchant' do
       get "/api/v1/merchants/#{@merchant1.id}/revenue"
+
       expect(response).to be_successful
 
       response = JSON.parse(response.body, symbolize_names: true)
