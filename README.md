@@ -1,24 +1,20 @@
-# README
+# Rails Engine 
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Overview 
 
-Things you may want to cover:
+## Learning Goals 
 
-* Ruby version
+## Getting Started 
 
-* System dependencies
+### Prerequisites
+### Installing
 
-* Configuration
+## Endpoints
 
-* Database creation
+## Tests
 
-* Database initialization
+## Database Schema 
 
-* How to run the test suite
+## Known Issues
 
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## Next Steps
