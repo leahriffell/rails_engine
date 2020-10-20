@@ -12,34 +12,38 @@ describe 'Items API' do
 
       items = JSON.parse(response.body, symbolize_names: true)
 
-      expect(items.count).to eq(10)
+      expect(items[:data].count).to eq(10)  
       
-      items.each do |item|
+      items[:data].each do |item|
+        expect(item).to be_a(Hash)
+
         expect(item).to have_key(:id)
-        expect(item[:id]).to be_an(Integer)
+        expect(item[:id]).to be_a(String)
 
-        expect(item).to have_key(:name)
-        expect(item[:name]).to be_a(String)
+        expect(item).to have_key(:attributes)
 
-        expect(item).to have_key(:description)
-        expect(item[:name]).to be_a(String)
+        expect(item[:attributes]).to have_key(:name)
+        expect(item[:attributes][:name]).to be_a(String)
 
-        expect(item).to have_key(:unit_price)
-        expect(item[:unit_price]).to be_a(Float)
+        expect(item[:attributes]).to have_key(:description)
+        expect(item[:attributes][:description]).to be_a(String)
 
-        expect(item).to have_key(:merchant_id)
-        expect(item[:merchant_id]).to be_an(Integer)
+        expect(item[:attributes]).to have_key(:unit_price)
+        expect(item[:attributes][:unit_price]).to be_a(Float)
+
+        expect(item[:attributes]).to have_key(:merchant_id)
+        expect(item[:attributes][:merchant_id]).to be_an(Integer)
       end
     end
 
-    it 'sends an empty array if no items' do
+    it 'sends an empty data array if no items exist' do
       get '/api/v1/items'
   
       expect(response).to be_successful
   
       items = JSON.parse(response.body)
 
-      expect(items).to eq([])
+      expect(items).to eq({"data"=>[]})
     end
   end
 
@@ -56,20 +60,23 @@ describe 'Items API' do
 
       item = JSON.parse(response.body, symbolize_names: true)
 
-      expect(item).to have_key(:id)
-      expect(item[:id]).to eq(@id)
+      expect(item).to have_key(:data)
+      expect(item[:data]).to be_a(Hash)
 
-      expect(item).to have_key(:name)
-      expect(item[:name]).to be_a(String)
+      expect(item[:data]).to have_key(:attributes)
+      expect(item[:data][:attributes]).to be_a(Hash)
 
-      expect(item).to have_key(:description)
-      expect(item[:name]).to be_a(String)
+      expect(item[:data][:attributes]).to have_key(:name)
+      expect(item[:data][:attributes][:name]).to be_a(String)
 
-      expect(item).to have_key(:unit_price)
-      expect(item[:unit_price]).to be_a(Float)
+      expect(item[:data][:attributes]).to have_key(:description)
+      expect(item[:data][:attributes][:description]).to be_a(String)
 
-      expect(item).to have_key(:merchant_id)
-      expect(item[:merchant_id]).to be_an(Integer)
+      expect(item[:data][:attributes]).to have_key(:unit_price)
+      expect(item[:data][:attributes][:unit_price]).to be_a(Float)
+
+      expect(item[:data][:attributes]).to have_key(:merchant_id)
+      expect(item[:data][:attributes][:merchant_id]).to be_an(Integer)
     end
 
     xit 'sends 404 response when no item is found' do
@@ -79,7 +86,7 @@ describe 'Items API' do
     end
   end
 
-  describe 'item create new' do
+  describe 'create new item' do
     before :each do
       @merchant = create(:merchant)
     end
@@ -93,7 +100,7 @@ describe 'Items API' do
       })
       headers = {"CONTENT_TYPE" => "application/json"}
 
-      post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+      post "/api/v1/items", headers: headers, params: JSON.generate(item_params)
       created_item = Item.last
 
       expect(response).to be_successful
@@ -102,6 +109,8 @@ describe 'Items API' do
       expect(created_item.unit_price).to eq(item_params[:unit_price])
       expect(created_item.merchant_id).to eq(item_params[:merchant_id])
       expect(created_item.merchant_id).to eq(@merchant.id)
+
+      expect(@merchant.items.last).to eq(created_item)
     end
 
     xit "cannot create a new item when all required fields aren't provided" do
@@ -122,7 +131,7 @@ describe 'Items API' do
       item_params = { name: "Handy Dandy Notebook" }
       headers = {"CONTENT_TYPE" => "application/json"}
     
-      patch "/api/v1/items/#{@item.id}", headers: headers, params: JSON.generate({item: item_params})
+      patch "/api/v1/items/#{@item.id}", headers: headers, params: JSON.generate(item_params)
       item = Item.find_by(id: @item.id)
     
       expect(response).to be_successful
