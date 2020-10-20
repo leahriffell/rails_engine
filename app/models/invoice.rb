@@ -8,4 +8,8 @@ class Invoice < ApplicationRecord
   enum status: { 'shipped': 0 }
 
   validates :status, presence: true
+
+  def paid?
+    transactions.exists?(result: 0)  
+  end
 end
