@@ -19,5 +19,17 @@ class Item < ApplicationRecord
     else
       Item.find_by("LOWER(#{attribute}) = LOWER('#{value}')")
     end
-  end 
+  end
+
+  def self.multi_search(attribute, value)
+    if attribute == 'unit_price'
+      Item.where("#{attribute} = #{value.to_f}")
+    elsif attribute == 'created_at' || attribute == 'updated_at'
+      Item.where("#{attribute} = '%#{value.to_date}%'")
+    elsif value.class == Float || value.class == Integer
+      Item.where("#{attribute} = #{value}")
+    else
+      Item.where("LOWER(#{attribute}) LIKE LOWER('%#{value}%')")
+    end
+  end
 end
