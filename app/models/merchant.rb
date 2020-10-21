@@ -5,6 +5,18 @@ class Merchant < ApplicationRecord
   
   validates :name, presence: true
 
+  def self.single_search(attribute, value)
+    if attribute == 'created_at' || attribute == 'updated_at'
+      Merchant.find_by("#{attribute} = '%#{value.to_date}%'")
+    elsif value.class == Float || value.class == Integer
+      Merchant.find_by("#{attribute} = #{value}")
+    elsif Merchant.find_by("LOWER(#{attribute}) = LOWER('#{value}')") == nil
+      Merchant.find_by("LOWER(#{attribute}) LIKE LOWER('%#{value}%')")
+    else
+      Merchant.find_by("LOWER(#{attribute}) = LOWER('#{value}')")
+    end
+  end
+
   def self.rank_by_revenue(num_limit)
     sql = "SELECT invoices.merchant_id, SUM(unit_price * invoice_items.quantity) AS total FROM invoices
     INNER JOIN invoice_items ON invoice_items.invoice_id = invoices.id 

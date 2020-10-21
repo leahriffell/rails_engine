@@ -13,7 +13,7 @@ RSpec.describe Merchant do
   describe 'methods' do
     before :each do
       # merchant 1 has revenue of $210.10
-      @merchant1 = create(:merchant)
+      @merchant1 = create(:merchant, name: 'Brandless', created_at: '2020-10-31')
       @item1 = create(:item, unit_price: 10, merchant_id: @merchant1.id)
       @item2 = create(:item, unit_price: 3.99, merchant_id: @merchant1.id)
       @item3 = create(:item, unit_price: 20.20, merchant_id: @merchant1.id)
@@ -33,14 +33,14 @@ RSpec.describe Merchant do
       transaction3 = create(:transaction, invoice_id: invoice3.id, result: 0)
 
       # merchant 2 has revenue of $600
-      @merchant2 = create(:merchant)
+      @merchant2 = create(:merchant, name: "Brand The Label", updated_at: '2021-01-01')
       @item4 = create(:item, unit_price: 300, merchant_id: @merchant2.id)
       invoice4 = create(:invoice, merchant_id: @merchant2.id)
       @invoice_item6 = create(:invoice_item, invoice_id: invoice4.id, item_id: @item4.id, quantity: 2)
       transaction4 = create(:transaction, invoice_id: invoice4.id)
 
       # merchant 3 has revenue of $50
-      @merchant3 = create(:merchant)
+      @merchant3 = create(:merchant, name: 'brand')
       @item5 = create(:item, unit_price: 10, merchant_id: @merchant3.id)
       invoice5 = create(:invoice, merchant_id: @merchant3.id)
       @invoice_item7 = create(:invoice_item, invoice_id: invoice5.id, item_id: @item5.id, quantity: 5)
@@ -62,6 +62,26 @@ RSpec.describe Merchant do
     end
 
     describe 'class methods' do
+      describe 'single_search(attribute, value)' do
+        it 'matches an exact match' do
+          expect(Merchant.single_search('name', 'brand')).to eq(@merchant3)
+        end
+
+        it 'matches case insensitively' do
+          expect(Merchant.single_search('name', 'Brand')).to eq(@merchant3)
+        end
+
+        it 'can find partial match' do
+          expect(Merchant.single_search 'name', 'lab').to eq(@merchant2)
+        end
+
+        it 'can match based on timestamps' do
+          expect(Merchant.single_search('created_at', 'October+31')).to eq(@merchant1)
+  
+          expect(Merchant.single_search('updated_at', '1/1/2021')).to eq(@merchant2)
+        end
+      end
+
       describe 'rank_by_revenue(num_limit)' do
         it 'orders merchants in descending order by revenue and limits to the top num_limit' do
           results = Merchant.rank_by_revenue(5)
