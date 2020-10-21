@@ -3,6 +3,9 @@ class Api::V1::Items::SearchController < ApplicationController
     render json: ItemSerializer.new(Item.single_search(search_attribute, search_value))
   end
 
+  def multi_result
+    render json: ItemSerializer.new(Item.multi_search(search_attribute, search_value)).serialized_json
+  end
   private
 
   def search_params
