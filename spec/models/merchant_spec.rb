@@ -64,9 +64,13 @@ RSpec.describe Merchant do
     describe 'class methods' do
       describe 'rank_by_revenue(num_limit)' do
         it 'orders merchants in descending order by revenue and limits to the top num_limit' do
-          # expect(Merchant.rank_by_revenue(6)).to eq([@merchant4, @merchant2, @merchant1, @merchant3, @merchant5, @merchant6])
+          results = Merchant.rank_by_revenue(5)
 
-          expect(Merchant.rank_by_revenue(5)).to eq([@merchant4, @merchant2, @merchant1, @merchant3, @merchant5])
+          expect(results[0][0]).to eq(@merchant4.id)
+          expect(results[1][0]).to eq(@merchant2.id)
+          expect(results[2][0]).to eq(@merchant1.id)
+          expect(results[3][0]).to eq(@merchant5.id)
+          expect(results[4][0]).to eq(@merchant3.id)
         end
       end
     end
@@ -74,8 +78,6 @@ RSpec.describe Merchant do
     describe 'instance methods' do
       describe 'total_revenue' do
         it 'calculates total sum of paid invoices for a merchant' do
-          # collected_revenue = (@item1.unit_price * @invoice_item1.quantity) + (@item2.unit_price * @invoice_item2.quantity) + (@item1.unit_price * @invoice_item4.quantity) + (@item3.unit_price * @invoice_item5.quantity) 
-        
           expect(@merchant1.total_revenue).to eq(210.10)
           expect(@merchant2.total_revenue).to eq(600)
           expect(@merchant3.total_revenue).to eq(50)

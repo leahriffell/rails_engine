@@ -16,10 +16,6 @@ class Merchant < ApplicationRecord
     LIMIT #{num_limit};"
 
     result = ActiveRecord::Base.connection.exec_query(sql).rows
-
-    result.map do |merch_and_rev|
-      Merchant.find(merch_and_rev[0])
-    end
   end
 
   def total_revenue
