@@ -34,11 +34,36 @@ describe 'Merchants API' do
 
   describe 'merchant show' do
     it 'sends specific merchant' do
+      get "/api/v1/merchants/#{@merchant1.id}"
+
+      expect(response).to be_successful
+
+      parsed = JSON.parse(response.body, symbolize_names: true)
+
+      expect(parsed).to have_key(:data)
+      expect(parsed[:data]).to be_a(Hash)
+      
+      expect(parsed[:data]).to have_key(:id)
+      expect(parsed[:data][:id]).to be_a(String)
+
+      expect(parsed[:data]).to have_key(:attributes)
+      expect(parsed[:data][:attributes]).to be_a(Hash)
+
+      expect(parsed[:data][:attributes]).to have_key(:name)
+      expect(parsed[:data][:attributes][:name]).to be_a(String)
     end
   end
 
   describe 'create new merchant' do
     it 'can create a new merchant when all required fields are provided' do
+      merchant_params = ({ name: 'The Banana Stand' })
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      post "/api/v1/merchants", headers: headers, params: JSON.generate(merchant_params)
+      created_merchant = Merchant.last
+
+      expect(response).to be_successful
+      expect(created_merchant.name).to eq(merchant_params[:name])
     end
   end
 
