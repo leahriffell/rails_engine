@@ -163,4 +163,23 @@ describe 'Items API' do
     xit 'can do _____ when item to destroy is not found' do
     end
   end
+
+  describe "item's merchant" do
+    it 'can get the merchant that an item belongs to' do
+      merchant = create(:merchant)
+      item = create(:item, merchant_id: merchant.id)
+
+      get "/api/v1/items/#{item.id}/merchants"
+      parsed = JSON.parse(response.body, symbolize_names: true)
+
+      expect(parsed).to be_a(Hash)
+
+      expect(parsed).to have_key(:data)
+      expect(parsed[:data]).to be_a(Hash)
+
+      expect(parsed[:data]).to have_key(:id)
+      expect(parsed[:data][:id]).to be_a(String)
+      expect(parsed[:data][:id]).to eq(merchant.id.to_s)
+    end
+  end
 end
