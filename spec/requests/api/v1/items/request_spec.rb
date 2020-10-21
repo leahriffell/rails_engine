@@ -120,14 +120,14 @@ describe 'Items API' do
     end
   end
 
-  describe 'item update to existing' do
+  describe 'update existing item' do
     before :each do
       merchant = create(:merchant)
       @item = create(:item, merchant_id: merchant.id)
     end
 
     it 'can update existing item' do
-      previous_name = Item.last.name
+      original_name = Item.last.name
       item_params = { name: "Handy Dandy Notebook" }
       headers = {"CONTENT_TYPE" => "application/json"}
     
@@ -135,7 +135,7 @@ describe 'Items API' do
       item = Item.find_by(id: @item.id)
     
       expect(response).to be_successful
-      expect(item.name).to_not eq(previous_name)
+      expect(item.name).to_not eq(original_name)
       expect(item.name).to eq("Handy Dandy Notebook")
     end
 
@@ -164,7 +164,7 @@ describe 'Items API' do
     end
   end
 
-  describe "item's merchant" do
+  describe "item merchant" do
     it 'can get the merchant that an item belongs to' do
       merchant = create(:merchant)
       item = create(:item, merchant_id: merchant.id)
