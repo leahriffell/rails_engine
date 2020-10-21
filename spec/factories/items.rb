@@ -4,5 +4,7 @@ FactoryBot.define do
     description { Faker::Hipster.sentences(number: 1) }
     unit_price { Faker::Commerce.price }
     association :merchant
+    created_at { Faker::Date }
+    updated_at { Faker::Date }
   end
 end
