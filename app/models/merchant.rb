@@ -1,8 +1,8 @@
 class Merchant < ApplicationRecord
-  has_many :invoices
-  has_many :items
+  has_many :invoices, dependent: :destroy
+  has_many :items, dependent: :destroy
   has_many :invoice_items
-
+  
   validates :name, presence: true
 
   def self.rank_by_revenue(num_limit)

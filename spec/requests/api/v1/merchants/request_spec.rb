@@ -85,6 +85,13 @@ describe 'Merchants API' do
 
   describe 'merchant destroy' do
     it 'can destroy a merchant' do
+      expect(Merchant.count).to eq(3)
+
+      delete "/api/v1/merchants/#{@merchant1.id}"
+
+      expect(response).to be_successful
+      expect(Merchant.count).to eq(2)
+      expect{Merchant.find(@merchant1.id)}.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 
