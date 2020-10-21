@@ -8,7 +8,9 @@ class Item < ApplicationRecord
   validates :unit_price, presence: true
   
   def self.single_search(attribute, value)
-    if attribute == 'created_at' || attribute == 'updated_at'
+    if attribute == 'unit_price'
+      Item.find_by("#{attribute} = #{value.to_f}")
+    elsif attribute == 'created_at' || attribute == 'updated_at'
       Item.find_by("#{attribute} = '%#{value.to_date}%'")
     elsif value.class == Float || value.class == Integer
       Item.find_by("#{attribute} = #{value}")
