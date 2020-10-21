@@ -13,7 +13,7 @@ RSpec.describe Merchant do
   describe 'methods' do
     before :each do
       # merchant 1 has revenue of $210.10
-      @merchant1 = create(:merchant, name: 'Brandless', created_at: '2020-10-31')
+      @merchant1 = create(:merchant, name: 'Brandless', created_at: '2020-10-31', updated_at: '2021-01-01')
       @item1 = create(:item, unit_price: 10, merchant_id: @merchant1.id)
       @item2 = create(:item, unit_price: 3.99, merchant_id: @merchant1.id)
       @item3 = create(:item, unit_price: 20.20, merchant_id: @merchant1.id)
@@ -40,14 +40,14 @@ RSpec.describe Merchant do
       transaction4 = create(:transaction, invoice_id: invoice4.id)
 
       # merchant 3 has revenue of $50
-      @merchant3 = create(:merchant, name: 'brand')
+      @merchant3 = create(:merchant, name: 'brand', created_at: '2020-10-31', updated_at: '2020-10-31')
       @item5 = create(:item, unit_price: 10, merchant_id: @merchant3.id)
       invoice5 = create(:invoice, merchant_id: @merchant3.id)
       @invoice_item7 = create(:invoice_item, invoice_id: invoice5.id, item_id: @item5.id, quantity: 5)
       transaction5 = create(:transaction, invoice_id: invoice5.id)
 
       # merchant 4 has revenue of $1,000.99
-      @merchant4 = create(:merchant)
+      @merchant4 = create(:merchant, name: 'Lab Store')
       @item6 = create(:item, unit_price: 1000.99, merchant_id: @merchant4.id)
       invoice6 = create(:invoice, merchant_id: @merchant4.id)
       @invoice_item8 = create(:invoice_item, invoice_id: invoice6.id, item_id: @item6.id, quantity: 1)
@@ -78,7 +78,23 @@ RSpec.describe Merchant do
         it 'can match based on timestamps' do
           expect(Merchant.single_search('created_at', 'October+31')).to eq(@merchant1)
   
-          expect(Merchant.single_search('updated_at', '1/1/2021')).to eq(@merchant2)
+          expect(Merchant.single_search('updated_at', '1/1/2021')).to eq(@merchant1)
+        end
+      end
+
+      describe 'multi_search(attribute, value)' do
+        it 'matches case insensitively' do
+          expect(Merchant.multi_search('name', 'Brand')).to eq([@merchant1, @merchant2, @merchant3])
+        end
+
+        it 'can find partial match' do
+          expect(Merchant.multi_search 'name', 'lab').to eq([@merchant2, @merchant4])
+        end
+
+        it 'can match based on timestamps' do
+          expect(Merchant.multi_search('created_at', 'October+31')).to eq([@merchant1, @merchant3])
+  
+          expect(Merchant.multi_search('updated_at', '1/1/2021')).to eq([@merchant1, @merchant2])
         end
       end
 

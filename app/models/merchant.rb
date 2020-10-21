@@ -17,6 +17,16 @@ class Merchant < ApplicationRecord
     end
   end
 
+  def self.multi_search(attribute, value)
+    if attribute == 'created_at' || attribute == 'updated_at'
+      Merchant.where("#{attribute} = '%#{value.to_date}%'")
+    elsif value.class == Float || value.class == Integer
+      Merchant.where("#{attribute} = #{value}")
+    else
+      Merchant.where("LOWER(#{attribute}) LIKE LOWER('%#{value}%')")
+    end
+  end
+
   def self.rank_by_revenue(num_limit)
     sql = "SELECT invoices.merchant_id, SUM(unit_price * invoice_items.quantity) AS total FROM invoices
     INNER JOIN invoice_items ON invoice_items.invoice_id = invoices.id 
