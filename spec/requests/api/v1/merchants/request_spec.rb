@@ -3,6 +3,53 @@ require 'rails_helper'
 describe 'Merchants API' do
   before :each do
     @merchant1 = merchant_with_items
+    @merchant2 = create(:merchant)
+    @merchant3 = create(:merchant)
+  end
+
+  describe 'merchants index' do
+    it 'sends a list of merchants' do
+      get '/api/v1/merchants'
+
+      expect(response).to be_successful
+
+      parsed = JSON.parse(response.body, symbolize_names: true)
+
+      expect(parsed[:data].count).to eq(3)
+
+      parsed[:data].each do |merchant|
+        expect(merchant).to be_a(Hash)
+
+        expect(merchant).to have_key(:id)
+        expect(merchant).to be_a(Hash)
+
+        expect(merchant).to have_key(:attributes)
+        expect(merchant[:attributes]).to be_a(Hash)
+
+        expect(merchant[:attributes]).to have_key(:name)
+        expect(merchant[:attributes][:name]).to be_a(String)
+      end
+    end
+  end
+
+  describe 'merchant show' do
+    it 'sends specific merchant' do
+    end
+  end
+
+  describe 'create new merchant' do
+    it 'can create a new merchant when all required fields are provided' do
+    end
+  end
+
+  describe 'update existing merchant' do
+    it 'can update existing merchant' do
+    end
+  end
+
+  describe 'merchant destroy' do
+    it 'can destroy a merchant' do
+    end
   end
 
   describe 'merchant items' do

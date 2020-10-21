@@ -120,7 +120,7 @@ describe 'Items API' do
     end
   end
 
-  describe 'item update to existing' do
+  describe 'update existing item' do
     before :each do
       merchant = create(:merchant)
       @item = create(:item, merchant_id: merchant.id)
@@ -164,7 +164,7 @@ describe 'Items API' do
     end
   end
 
-  describe "item's merchant" do
+  describe "item merchant" do
     it 'can get the merchant that an item belongs to' do
       merchant = create(:merchant)
       item = create(:item, merchant_id: merchant.id)
