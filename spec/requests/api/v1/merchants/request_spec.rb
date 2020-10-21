@@ -69,6 +69,17 @@ describe 'Merchants API' do
 
   describe 'update existing merchant' do
     it 'can update existing merchant' do
+      original_name = @merchant1.name
+      merchant_params = ({ name: 'Twist & Shout Records' })
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      patch "/api/v1/merchants/#{@merchant1.id}", headers: headers, params: JSON.generate(merchant_params)
+      
+      expect(response).to be_successful
+
+      merchant = Merchant.find(@merchant1.id)
+      expect(merchant.name).to_not eq(original_name)
+      expect(merchant.name).to eq('Twist & Shout Records')
     end
   end
 
