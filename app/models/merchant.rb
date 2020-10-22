@@ -2,6 +2,7 @@ class Merchant < ApplicationRecord
   has_many :invoices, dependent: :destroy
   has_many :items, dependent: :destroy
   has_many :invoice_items
+  has_many :transactions
   
   validates :name, presence: true
 
@@ -28,7 +29,7 @@ class Merchant < ApplicationRecord
   end
 
   def self.rank_by_revenue(num_limit)
-    sql = "SELECT invoices.merchant_id, SUM(invoice_items.unit_price * invoice_items.quantity) AS total FROM invoices
+    sql = "SELECT invoices.merchant_id, SUM(invoice_items.unit_price * invoice_items.quantity) AS total, invoices.merchant_id AS merchant_id FROM invoices
     INNER JOIN invoice_items ON invoice_items.invoice_id = invoices.id 
     INNER JOIN transactions ON invoices.id = transactions.invoice_id
     INNER JOIN items ON invoice_items.item_id = items.id
@@ -37,7 +38,17 @@ class Merchant < ApplicationRecord
     ORDER BY total DESC
     LIMIT #{num_limit};"
 
-    result = ActiveRecord::Base.connection.exec_query(sql).rows
+    Merchant.find_by_sql(sql)
+    # result = ActiveRecord::Base.connection.exec_query(sql).rows
+  end
+
+  def self.rank_by_num_items_sold(num_limit)
+    Merchant.joins(invoices: [:invoice_items, :transactions])
+    .select("merchants.id, merchants.name, sum(invoice_items.quantity) AS num_items")
+    .where(transactions: {result: 'success'}, invoices: {status: 'shipped'})
+    .group("merchants.id")
+    .order("num_items DESC")
+    .limit(num_limit)
   end
 
   def total_revenue

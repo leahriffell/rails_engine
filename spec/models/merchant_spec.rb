@@ -12,7 +12,7 @@ RSpec.describe Merchant do
 
   describe 'methods' do
     before :each do
-      # merchant 1 has revenue of $210.10
+      # merchant 1 has revenue of $210.10 (26 items)
       @merchant1 = create(:merchant, name: 'Brandless', created_at: '2020-10-31', updated_at: '2021-01-01')
       @item1 = create(:item, unit_price: 10, merchant_id: @merchant1.id)
       @item2 = create(:item, unit_price: 3.99, merchant_id: @merchant1.id)
@@ -32,28 +32,28 @@ RSpec.describe Merchant do
       @invoice_item5 = create(:invoice_item, invoice_id: invoice3.id, item_id: @item3.id, unit_price: 20.20, quantity: 1)
       transaction3 = create(:transaction, invoice_id: invoice3.id, result: 0)
 
-      # merchant 2 has revenue of $600
+      # merchant 2 has revenue of $600 (2 items)
       @merchant2 = create(:merchant, name: "Brand The Label", updated_at: '2021-01-01')
       @item4 = create(:item, unit_price: 300, merchant_id: @merchant2.id)
       invoice4 = create(:invoice, merchant_id: @merchant2.id)
       @invoice_item6 = create(:invoice_item, invoice_id: invoice4.id, item_id: @item4.id, unit_price: 300, quantity: 2)
       transaction4 = create(:transaction, invoice_id: invoice4.id)
 
-      # merchant 3 has revenue of $50
+      # merchant 3 has revenue of $50 (5 items)
       @merchant3 = create(:merchant, name: 'brand', created_at: '2020-10-31', updated_at: '2020-10-31')
       @item5 = create(:item, unit_price: 10, merchant_id: @merchant3.id)
       invoice5 = create(:invoice, merchant_id: @merchant3.id)
       @invoice_item7 = create(:invoice_item, invoice_id: invoice5.id, item_id: @item5.id, unit_price: 10, quantity: 5)
       transaction5 = create(:transaction, invoice_id: invoice5.id)
 
-      # merchant 4 has revenue of $1,000.99
+      # merchant 4 has revenue of $1,000.99 (1 item)
       @merchant4 = create(:merchant, name: 'Lab Store')
       @item6 = create(:item, unit_price: 1000.99, merchant_id: @merchant4.id)
       invoice6 = create(:invoice, merchant_id: @merchant4.id)
       @invoice_item8 = create(:invoice_item, invoice_id: invoice6.id, item_id: @item6.id, unit_price: 1000.99, quantity: 1)
       transaction6 = create(:transaction, invoice_id: invoice6.id)
 
-      # merchant 5 has revenue of $50
+      # merchant 5 has revenue of $50 (1 item)
       @merchant5 = create(:merchant)
       @item7 = create(:item, unit_price: 50, merchant_id: @merchant5.id)
       invoice7 = create(:invoice, merchant_id: @merchant5.id)
@@ -99,21 +99,37 @@ RSpec.describe Merchant do
       end
 
       describe 'rank_by_revenue(num_limit)' do
-        it 'orders merchants in descending order by revenue and limits to the top num_limit' do
+        it 'orders merchants in descending order by revenue and limits to the top num_limit merchants' do
           results = Merchant.rank_by_revenue(5)
 
-          expect(results[0][0]).to eq(@merchant4.id)
-          expect(results[1][0]).to eq(@merchant2.id)
-          expect(results[2][0]).to eq(@merchant1.id)
-          expect(results[3][0]).to eq(@merchant5.id)
-          expect(results[4][0]).to eq(@merchant3.id)
+          expect(results).to eq([@merchant4, @merchant2, @merchant1, @merchant5, @merchant3])
+
+          # only count sucessful transactions and shipped items 
+          # merchant 1 would have 27 but 1 transaction failed
+          # expect(results[0][0]).to eq(@merchant4.id)
+          # expect(results[1][0]).to eq(@merchant2.id)
+          # expect(results[2][0]).to eq(@merchant1.id)
+          # expect(results[3][0]).to eq(@merchant5.id)
+          # expect(results[4][0]).to eq(@merchant3.id)
+        end
+      end
+
+      describe 'rank_by_num_items_sold(num_limit)' do
+        it 'orders merchants in descending order by count of items sold and limits to the top num_limit merchants' do
+          expect(Merchant.rank_by_num_items_sold(3)).to eq([@merchant1, @merchant3, @merchant2])
+
+          expect(Merchant.rank_by_num_items_sold(5)).to eq([@merchant1, @merchant3, @merchant2, @merchant4, @merchant5])
+
+          expect(Merchant.rank_by_num_items_sold(1)).to eq([@merchant1])
+          
+          expect(Merchant.rank_by_num_items_sold(6)).to eq([@merchant1, @merchant3, @merchant2, @merchant4, @merchant5])
         end
       end
     end
 
     describe 'instance methods' do
       describe 'total_revenue' do
-        it 'calculates total sum of paid invoices for a merchant' do
+       it 'calculates total sum of paid invoices for a merchant' do
           expect(@merchant1.total_revenue).to eq(210.10)
           expect(@merchant2.total_revenue).to eq(600)
           expect(@merchant3.total_revenue).to eq(50)
