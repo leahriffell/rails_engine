@@ -59,6 +59,8 @@ RSpec.describe Merchant do
       invoice7 = create(:invoice, merchant_id: @merchant5.id)
       @invoice_item9 = create(:invoice_item, invoice_id: invoice7.id, item_id: @item7.id, unit_price: 50, quantity: 1)
       transaction7 = create(:transaction, invoice_id: invoice7.id)
+
+      @merchant6 = create(:merchant)
     end
 
     describe 'class methods' do
@@ -100,17 +102,10 @@ RSpec.describe Merchant do
 
       describe 'rank_by_revenue(num_limit)' do
         it 'orders merchants in descending order by revenue and limits to the top num_limit merchants' do
-          results = Merchant.rank_by_revenue(5)
+          expect(Merchant.rank_by_revenue(5)).to eq([@merchant4, @merchant2, @merchant1, @merchant3, @merchant5])
 
-          expect(results).to eq([@merchant4, @merchant2, @merchant1, @merchant5, @merchant3])
-
-          # only count sucessful transactions and shipped items 
-          # merchant 1 would have 27 but 1 transaction failed
-          # expect(results[0][0]).to eq(@merchant4.id)
-          # expect(results[1][0]).to eq(@merchant2.id)
-          # expect(results[2][0]).to eq(@merchant1.id)
-          # expect(results[3][0]).to eq(@merchant5.id)
-          # expect(results[4][0]).to eq(@merchant3.id)
+          # how to give merchant w/ $0 revenue default value of $0?
+          # expect(Merchant.rank_by_revenue(6)).to eq([@merchant4, @merchant2, @merchant1, @merchant3, @merchant5, @merchant6])
         end
       end
 
@@ -121,8 +116,9 @@ RSpec.describe Merchant do
           expect(Merchant.rank_by_num_items_sold(5)).to eq([@merchant1, @merchant3, @merchant2, @merchant4, @merchant5])
 
           expect(Merchant.rank_by_num_items_sold(1)).to eq([@merchant1])
-          
-          expect(Merchant.rank_by_num_items_sold(6)).to eq([@merchant1, @merchant3, @merchant2, @merchant4, @merchant5])
+
+          # how to give merchant w/ 0 items sold default value of 0?
+          # expect(Merchant.rank_by_num_items_sold(6)).to eq([@merchant1, @merchant3, @merchant2, @merchant4, @merchant5, @merchant6])
         end
       end
     end
@@ -135,6 +131,8 @@ RSpec.describe Merchant do
           expect(@merchant3.total_revenue).to eq(50)
           expect(@merchant4.total_revenue).to eq(1000.99)
           expect(@merchant5.total_revenue).to eq(50)
+
+          # how to give merchant w/ $0 revenue default value of $0?
           # expect(@merchant6.total_revenue).to eq(0)
         end
       end

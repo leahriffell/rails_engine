@@ -4,10 +4,7 @@ class Api::V1::Merchants::BizIntelController < ApplicationController
   end
 
   def rank_by_revenue
-    merchants = Merchant.rank_by_revenue(params[:quantity]).map do |merchant|
-      Merchant.find(merchant[0])
-    end
-
+    merchants = Merchant.rank_by_revenue(params[:quantity])
     render json: MerchantSerializer.new(merchants).serialized_json
   end
 

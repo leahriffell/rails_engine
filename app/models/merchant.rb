@@ -29,17 +29,12 @@ class Merchant < ApplicationRecord
   end
 
   def self.rank_by_revenue(num_limit)
-    sql = "SELECT invoices.merchant_id, SUM(invoice_items.unit_price * invoice_items.quantity) AS total, invoices.merchant_id AS merchant_id FROM invoices
-    INNER JOIN invoice_items ON invoice_items.invoice_id = invoices.id 
-    INNER JOIN transactions ON invoices.id = transactions.invoice_id
-    INNER JOIN items ON invoice_items.item_id = items.id
-  	WHERE transactions.result = 0
-    GROUP BY invoices.merchant_id
-    ORDER BY total DESC
-    LIMIT #{num_limit};"
-
-    Merchant.find_by_sql(sql)
-    # result = ActiveRecord::Base.connection.exec_query(sql).rows
+    Merchant.joins(invoices: [:invoice_items, :transactions])
+    .select("merchants.*, merchants.name, SUM(invoice_items.unit_price * invoice_items.quantity) AS total")
+    .where(transactions: {result: 'success'}, invoices: {status: 'shipped'})
+    .group("merchants.id")
+    .order("total DESC")
+    .limit(num_limit)
   end
 
   def self.rank_by_num_items_sold(num_limit)
