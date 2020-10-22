@@ -2,6 +2,7 @@ class Merchant < ApplicationRecord
   has_many :invoices, dependent: :destroy
   has_many :items, dependent: :destroy
   has_many :invoice_items
+  has_many :transactions
   
   validates :name, presence: true
 
@@ -28,25 +29,33 @@ class Merchant < ApplicationRecord
   end
 
   def self.rank_by_revenue(num_limit)
-    sql = "SELECT invoices.merchant_id, SUM(unit_price * invoice_items.quantity) AS total FROM invoices
-    INNER JOIN invoice_items ON invoice_items.invoice_id = invoices.id 
-    INNER JOIN transactions ON invoices.id = transactions.invoice_id
-    INNER JOIN items ON invoice_items.item_id = items.id
-  	WHERE transactions.result = 0
-    GROUP BY invoices.merchant_id
-    ORDER BY total DESC
-    LIMIT #{num_limit};"
+    Merchant.joins(invoices: [:invoice_items, :transactions])
+    .select("merchants.*, merchants.name, SUM(invoice_items.unit_price * invoice_items.quantity) AS total")
+    .where(transactions: {result: 'success'}, invoices: {status: 'shipped'})
+    .group("merchants.id")
+    .order("total DESC")
+    .limit(num_limit)
+  end
 
-    result = ActiveRecord::Base.connection.exec_query(sql).rows
+  def self.rank_by_num_items_sold(num_limit)
+    Merchant.joins(invoices: [:invoice_items, :transactions])
+    .select("merchants.id, merchants.name, sum(invoice_items.quantity) AS num_items")
+    .where(transactions: {result: 'success'}, invoices: {status: 'shipped'})
+    .group("merchants.id")
+    .order("num_items DESC")
+    .limit(num_limit)
+  end
+
+  def self.revenue_between_dates(start_date, end_date)
+    Merchant.joins(invoices: [:invoice_items, :transactions])
+    .where(invoices: {created_at: start_date.to_datetime.beginning_of_day..end_date.to_datetime.end_of_day})
+    .where(transactions: {result: 'success'}, invoices: {status: 'shipped'})
+    .sum("invoice_items.unit_price * invoice_items.quantity")
   end
 
   def total_revenue
-    sql = "SELECT SUM(unit_price * invoice_items.quantity) AS total FROM invoices
-    INNER JOIN invoice_items ON invoice_items.invoice_id = invoices.id 
-    INNER JOIN transactions ON invoices.id = transactions.invoice_id
-    INNER JOIN items ON invoice_items.item_id = items.id
-    WHERE transactions.result = 0 AND invoices.merchant_id = #{self.id};"
-    result = ActiveRecord::Base.connection.exec_query(sql).rows.first.first
-    # require 'pry'; binding.pry
+    invoices.joins(:invoice_items, :transactions)
+    .where(transactions: {result: 'success'}, invoices: {status: 'shipped', merchant_id: self.id})
+    .sum("invoice_items.unit_price * invoice_items.quantity")
   end
 end
