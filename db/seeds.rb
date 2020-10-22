@@ -30,7 +30,7 @@ CSV.foreach('db/csv_data/invoices.csv', headers: true, header_converters: :symbo
 end
 
 CSV.foreach('db/csv_data/invoice_items.csv', headers: true, header_converters: :symbol) do |row|
-  InvoiceItem.create(row.to_h.except(:unit_price))
+  InvoiceItem.create(row.to_h)
 end
 
 CSV.foreach('db/csv_data/transactions.csv', headers: true, header_converters: :symbol) do |row|

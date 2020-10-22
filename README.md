@@ -1,10 +1,18 @@
-# Rails Engine 
+# Rails Engine
 
-## Overview 
+## Overview
+Rails Engine is an API that serves up business intelligence analytics to an ecommerce site.
 
-## Learning Goals 
+Turing mod 3 solo project
 
-## Getting Started 
+## Learning Goals
+- Expose and test an API
+- Use serializers to format JSON responses
+- Compose advanced ActiveRecord queries to analyze information stored in SQL databases
+- Write SQL statements without the assistance of an ORM
+
+## Getting Started
+
 
 ### Prerequisites
 ### Installing
