@@ -11,8 +11,7 @@ Turing mod 3 solo project
 - [Endpoints](#endpoints)
 - [Testing](#testing)
 - [Database Schema](#database-schema)
-- [Known Issues](#known-issues)
-<!-- - [Next Steps](#next-steps) -->
+- [Next Steps](#next-steps)
 
 ## Learning Goals
 - Expose an API
