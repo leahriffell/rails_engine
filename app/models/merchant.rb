@@ -47,11 +47,8 @@ class Merchant < ApplicationRecord
   end
 
   def total_revenue
-    sql = "SELECT SUM(invoice_items.unit_price * invoice_items.quantity) AS total FROM invoices
-    INNER JOIN invoice_items ON invoice_items.invoice_id = invoices.id 
-    INNER JOIN transactions ON invoices.id = transactions.invoice_id
-    INNER JOIN items ON invoice_items.item_id = items.id
-    WHERE transactions.result = 0 AND invoices.merchant_id = #{self.id};"
-    result = ActiveRecord::Base.connection.exec_query(sql).rows.first.first
+    invoices.joins(:invoice_items, :transactions)
+    .where(transactions: {result: 'success'}, invoices: {status: 'shipped', merchant_id: self.id})
+    .sum("invoice_items.unit_price * invoice_items.quantity")
   end
 end

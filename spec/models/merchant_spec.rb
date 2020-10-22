@@ -131,9 +131,7 @@ RSpec.describe Merchant do
           expect(@merchant3.total_revenue).to eq(50)
           expect(@merchant4.total_revenue).to eq(1000.99)
           expect(@merchant5.total_revenue).to eq(50)
-
-          # how to give merchant w/ $0 revenue default value of $0?
-          # expect(@merchant6.total_revenue).to eq(0)
+          expect(@merchant6.total_revenue).to eq(0)
         end
       end
     end
