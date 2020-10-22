@@ -18,7 +18,7 @@ RSpec.describe Merchant do
       @item2 = create(:item, unit_price: 3.99, merchant_id: @merchant1.id)
       @item3 = create(:item, unit_price: 20.20, merchant_id: @merchant1.id)
 
-      invoice1 = create(:invoice, merchant_id: @merchant1.id)
+      invoice1 = create(:invoice, merchant_id: @merchant1.id, created_at: '2020-10-20')
       @invoice_item1 = create(:invoice_item, invoice_id: invoice1.id, item_id: @item1.id, unit_price: 10, quantity: 5)
       @invoice_item2 = create(:invoice_item, invoice_id: invoice1.id, item_id: @item2.id, unit_price: 3.99, quantity: 10)
       transaction1 = create(:transaction, invoice_id: invoice1.id, result: 0)
@@ -27,7 +27,7 @@ RSpec.describe Merchant do
       invoice_item3 = create(:invoice_item, invoice_id: invoice2.id, item_id: @item1.id, unit_price: 10, quantity: 1)
       transaction2 = create(:transaction, invoice_id: invoice1.id, result: 1)
 
-      invoice3 = create(:invoice, merchant_id: @merchant1.id)
+      invoice3 = create(:invoice, merchant_id: @merchant1.id, created_at: '2020-10-31')
       @invoice_item4 = create(:invoice_item, invoice_id: invoice3.id, item_id: @item1.id, unit_price: 10, quantity: 10)
       @invoice_item5 = create(:invoice_item, invoice_id: invoice3.id, item_id: @item3.id, unit_price: 20.20, quantity: 1)
       transaction3 = create(:transaction, invoice_id: invoice3.id, result: 0)
@@ -35,7 +35,7 @@ RSpec.describe Merchant do
       # merchant 2 has revenue of $600 (2 items)
       @merchant2 = create(:merchant, name: "Brand The Label", updated_at: '2021-01-01')
       @item4 = create(:item, unit_price: 300, merchant_id: @merchant2.id)
-      invoice4 = create(:invoice, merchant_id: @merchant2.id)
+      invoice4 = create(:invoice, merchant_id: @merchant2.id,created_at: '2020-10-31')
       @invoice_item6 = create(:invoice_item, invoice_id: invoice4.id, item_id: @item4.id, unit_price: 300, quantity: 2)
       transaction4 = create(:transaction, invoice_id: invoice4.id)
 
@@ -49,14 +49,14 @@ RSpec.describe Merchant do
       # merchant 4 has revenue of $1,000.99 (1 item)
       @merchant4 = create(:merchant, name: 'Lab Store')
       @item6 = create(:item, unit_price: 1000.99, merchant_id: @merchant4.id)
-      invoice6 = create(:invoice, merchant_id: @merchant4.id)
+      invoice6 = create(:invoice, merchant_id: @merchant4.id, created_at: '2020-11-01')
       @invoice_item8 = create(:invoice_item, invoice_id: invoice6.id, item_id: @item6.id, unit_price: 1000.99, quantity: 1)
       transaction6 = create(:transaction, invoice_id: invoice6.id)
 
       # merchant 5 has revenue of $50 (1 item)
       @merchant5 = create(:merchant)
       @item7 = create(:item, unit_price: 50, merchant_id: @merchant5.id)
-      invoice7 = create(:invoice, merchant_id: @merchant5.id)
+      invoice7 = create(:invoice, merchant_id: @merchant5.id, created_at: '2021-01-01')
       @invoice_item9 = create(:invoice_item, invoice_id: invoice7.id, item_id: @item7.id, unit_price: 50, quantity: 1)
       transaction7 = create(:transaction, invoice_id: invoice7.id)
 
@@ -119,6 +119,18 @@ RSpec.describe Merchant do
 
           # how to give merchant w/ 0 items sold default value of 0?
           # expect(Merchant.rank_by_num_items_sold(6)).to eq([@merchant1, @merchant3, @merchant2, @merchant4, @merchant5, @merchant6])
+        end
+      end
+
+      describe 'revenue_between_dates(start_date, end_date)' do
+        it 'returns total revenue across all merchants within specific date range' do
+          october_2020_rev = (@invoice_item1.unit_price * @invoice_item1.quantity + @invoice_item2.unit_price * @invoice_item2.quantity + @invoice_item4.unit_price * @invoice_item4.quantity + @invoice_item5.unit_price * @invoice_item5.quantity + @invoice_item6.unit_price * @invoice_item6.quantity + @invoice_item7.unit_price * @invoice_item7.quantity)
+          year_2020_rev = october_2020_rev + @invoice_item8.unit_price * @invoice_item8.quantity
+          year_2020_2021_rev = year_2020_rev + @invoice_item9.unit_price * @invoice_item9.quantity
+
+          expect(Merchant.revenue_between_dates('2020-10-01', '2020-10-31')).to eq(october_2020_rev)
+          expect(Merchant.revenue_between_dates('2020-01-01', '2020-12-31')).to eq(year_2020_rev)
+          expect(Merchant.revenue_between_dates('2020-10-01', '2021-12-31')).to eq(year_2020_2021_rev)
         end
       end
     end

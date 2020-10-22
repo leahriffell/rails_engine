@@ -46,6 +46,13 @@ class Merchant < ApplicationRecord
     .limit(num_limit)
   end
 
+  def self.revenue_between_dates(start_date, end_date)
+    Merchant.joins(invoices: [:invoice_items, :transactions])
+    .where(invoices: {created_at: start_date.to_datetime.beginning_of_day..end_date.to_datetime.end_of_day})
+    .where(transactions: {result: 'success'}, invoices: {status: 'shipped'})
+    .sum("invoice_items.unit_price * invoice_items.quantity")
+  end
+
   def total_revenue
     invoices.joins(:invoice_items, :transactions)
     .where(transactions: {result: 'success'}, invoices: {status: 'shipped', merchant_id: self.id})
