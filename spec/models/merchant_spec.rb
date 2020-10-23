@@ -74,7 +74,9 @@ RSpec.describe Merchant do
         end
 
         it 'can find partial match' do
-          expect(Merchant.single_search 'name', 'lab').to eq(@merchant2)
+          merchant7 = create(:merchant, name: "London House")
+
+          expect(Merchant.single_search 'name', 'lon').to eq(merchant7)
         end
 
         it 'can match based on timestamps' do
@@ -86,17 +88,17 @@ RSpec.describe Merchant do
 
       describe 'multi_search(attribute, value)' do
         it 'matches case insensitively' do
-          expect(Merchant.multi_search('name', 'Brand')).to eq([@merchant1, @merchant2, @merchant3])
+          expect(Merchant.multi_search('name', 'Brand')).to eq([@merchant1, @merchant2, @merchant3].sort)
         end
 
         it 'can find partial match' do
-          expect(Merchant.multi_search 'name', 'lab').to eq([@merchant2, @merchant4])
+          expect(Merchant.multi_search 'name', 'lab').to eq([@merchant2, @merchant4].sort)
         end
 
         it 'can match based on timestamps' do
-          expect(Merchant.multi_search('created_at', 'October+31')).to eq([@merchant1, @merchant3])
+          expect(Merchant.multi_search('created_at', 'October+31')).to eq([@merchant1, @merchant3].sort)
   
-          expect(Merchant.multi_search('updated_at', '1/1/2021')).to eq([@merchant1, @merchant2])
+          expect(Merchant.multi_search('updated_at', '1/1/2021')).to eq([@merchant1, @merchant2].sort)
         end
       end
 

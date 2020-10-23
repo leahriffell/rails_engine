@@ -57,24 +57,24 @@ RSpec.describe Item do
         item1 = create(:item, name: 'Ring Security System')
         item2 = create(:item, name: 'ring')
 
-        expect(Item.multi_search('name', 'ring')).to eq([item1, item2])
+        expect(Item.multi_search('name', 'ring')).to eq([item1, item2].sort)
       end
 
       it 'can find partial match' do
         item1 = create(:item, name: 'Ring Security System')
         item2 = create(:item, name: 'ring')
         item3 = create(:item, name: 'Bring It On soundtrack')
-        expect(Item.multi_search('name', 'ring')).to eq([item1, item2, item3])
+        expect(Item.multi_search('name', 'ring')).to eq([item1, item2, item3].sort)
       end
 
       it 'can match based on timestamps' do
         item1 = create(:item, created_at: '2020-10-31')
         item2 = create(:item, created_at: '2020-10-31')
-        expect(Item.multi_search('created_at', 'October+31')).to eq([item1, item2])
+        expect(Item.multi_search('created_at', 'October+31')).to eq([item1, item2].sort)
 
         item3 = create(:item, updated_at: '2021-01-01')
         item4 = create(:item, updated_at: '2021-01-01')
-        expect(Item.multi_search('updated_at', '1/1/2021')).to eq([item3, item4])
+        expect(Item.multi_search('updated_at', '1/1/2021')).to eq([item3, item4].sort)
       end
 
       it 'can get match based on description' do
@@ -88,7 +88,7 @@ RSpec.describe Item do
       it 'can get match based on unit price' do
         item1 = create(:item, unit_price: 1.99)
         item2 = create(:item, unit_price: 1.99)
-        expect(Item.multi_search('unit_price', 1.99)).to eq([item1, item2])
+        expect(Item.multi_search('unit_price', 1.99)).to eq([item1, item2].sort)
       end
     end
   end
