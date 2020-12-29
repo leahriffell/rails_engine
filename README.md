@@ -2,7 +2,7 @@
 ![rails-badge](https://img.shields.io/badge/Rails-5.2.4-informational?style=flat-square) ![ruby-badge](https://img.shields.io/badge/Ruby-2.5.3-informational?style=flat-square)
 
 ## Overview
-Rails Engine is an API that serves up business intelligence analytics (like revenue across date range and top-selling merchant) to an e-commerce platform that aggregates several merchants.
+Rails Engine is a RESTful API that serves up business intelligence analytics (like revenue across date range and top-selling merchant) to an e-commerce platform that aggregates several merchants.
 
 ## Readme Content
 - [Getting Started](#getting-started)
