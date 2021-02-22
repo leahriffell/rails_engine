@@ -35,7 +35,7 @@ RSpec.describe Item do
 
       it 'can match based on timestamps' do
         item = create(:item, created_at: '2020-10-31')
-        expect(Item.single_search('created_at', 'October+31')).to eq(item)
+        expect(Item.single_search('created_at', 'October+31+2020')).to eq(item)
 
         item = create(:item, updated_at: '2021-01-01')
         expect(Item.single_search('updated_at', '1/1/2021')).to eq(item)
@@ -70,7 +70,7 @@ RSpec.describe Item do
       it 'can match based on timestamps' do
         item1 = create(:item, created_at: '2020-10-31')
         item2 = create(:item, created_at: '2020-10-31')
-        expect(Item.multi_search('created_at', 'October+31')).to eq([item1, item2].sort)
+        expect(Item.multi_search('created_at', 'October+31+2020')).to eq([item1, item2].sort)
 
         item3 = create(:item, updated_at: '2021-01-01')
         item4 = create(:item, updated_at: '2021-01-01')
